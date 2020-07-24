@@ -21,7 +21,8 @@ export class MainScene extends g.Scene {
 	constructor(param: g.SceneParameterObject) {
 		param.assetIds = [
 			"img_numbers_n", "img_numbers_n_red", "title", "start", "finish", "score", "time",
-			"panel","map","waku","cursor","combo","keep","fire","enemy","enemy2","bomb","player","effect","item",
+			"panel", "map", "waku", "cursor", "combo", "keep", "fire", "enemy", "enemy2", "bomb", "player", "effect", "item",
+			"item_base",
 			"config", "volume", "test", "glyph72","number_k", "number_b", "number_y", "number_p",
 			"se_start", "se_timeup", "bgm", "se_move", "se_miss","se_hit","se_item","se_bomb"];
 		super(param);
@@ -259,7 +260,7 @@ export class MainScene extends g.Scene {
 
 			//メインループ
 			let bkTime = 0;
-			const timeLimit = 90;
+			const timeLimit = 100;
 			let startTime: number = 0;
 			this.update.add(() => {
 				//return;//デバッグ

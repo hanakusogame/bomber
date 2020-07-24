@@ -10,7 +10,9 @@ export class Item extends g.FrameSprite {
 			x: px * 38 - 11,
 			y: py * 38 - 11,
 			frameNumber:num,
-			touchable:true
+			touchable: true,
+			interval:800
 		});
+		this.start();
 	}
 };

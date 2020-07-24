@@ -80,7 +80,7 @@ var Enemy = /** @class */ (function (_super) {
                     var x = _this.px + dx[i];
                     var y = _this.py + dy[i];
                     if ([5 /* WAIT_FIRE */, 2 /* BOMB */].indexOf(maps[_this.py][_this.px].num) !== -1) {
-                        var ar = [0 /* ROAD */, 5 /* WAIT_FIRE */];
+                        var ar = [5 /* WAIT_FIRE */];
                         if (ar.indexOf(maps[y][x].num) !== -1)
                             arr.push({ x: x, y: y });
                     }

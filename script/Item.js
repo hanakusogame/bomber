@@ -23,11 +23,13 @@ var Item = /** @class */ (function (_super) {
             x: px * 38 - 11,
             y: py * 38 - 11,
             frameNumber: num,
-            touchable: true
+            touchable: true,
+            interval: 800
         }) || this;
         _this.px = px;
         _this.py = py;
         _this.num = num;
+        _this.start();
         return _this;
     }
     return Item;

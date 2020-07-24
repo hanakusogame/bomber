@@ -22,7 +22,7 @@ var Map = /** @class */ (function (_super) {
             y: y * 38,
             width: 38,
             height: 38,
-            frames: [0, 1, 4, 0, 2, 3],
+            frames: [0, 1, 4, 0, 2, 0, 4],
             frameNumber: num
         }) || this;
         _this.num = num;

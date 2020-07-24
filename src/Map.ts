@@ -1,12 +1,12 @@
 import { Bomb } from "./Bomb";
 
 //種類
-export const enum MapType { ROAD, WALL, BOMB, FIRE, BLOCK, WAIT_FIRE };
+export const enum MapType { ROAD, WALL, BOMB, FIRE, BLOCK, WAIT_FIRE, WAIT_BOMB };
 
 //マップクラス
 export class Map extends g.FrameSprite {
 	public colors: string[] = ["green", "#404040", "blue", "green", "orange", "#00A000"];
-	public bomb: Bomb= null;
+	public bomb: Bomb = null;
 	public fires: g.FrameSprite[] = [];;
 
 	constructor(scene: g.Scene, x: number, y: number, public num: MapType) {
@@ -17,7 +17,7 @@ export class Map extends g.FrameSprite {
 			y: y * 38,
 			width: 38,
 			height: 38,
-			frames: [0, 1, 4, 0, 2, 3],
+			frames: [0, 1, 4, 0, 2, 0, 4],
 			frameNumber: num
 		});
 	}

@@ -21,6 +21,7 @@ var MainScene = /** @class */ (function (_super) {
         param.assetIds = [
             "img_numbers_n", "img_numbers_n_red", "title", "start", "finish", "score", "time",
             "panel", "map", "waku", "cursor", "combo", "keep", "fire", "enemy", "enemy2", "bomb", "player", "effect", "item",
+            "item_base",
             "config", "volume", "test", "glyph72", "number_k", "number_b", "number_y", "number_p",
             "se_start", "se_timeup", "bgm", "se_move", "se_miss", "se_hit", "se_item", "se_bomb"
         ];
@@ -226,7 +227,7 @@ var MainScene = /** @class */ (function (_super) {
             base.append(game);
             //メインループ
             var bkTime = 0;
-            var timeLimit = 90;
+            var timeLimit = 100;
             var startTime = 0;
             _this.update.add(function () {
                 //return;//デバッグ

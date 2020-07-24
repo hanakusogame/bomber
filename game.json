@@ -279,6 +279,12 @@
 			"path": "audio/se_item",
 			"systemId": "sound",
 			"duration": 654
+		},
+		"item_base": {
+			"type": "image",
+			"width": 120,
+			"height": 60,
+			"path": "image/item_base.png"
 		}
 	},
 	"environment": {
@@ -289,7 +295,7 @@
 				"ranking"
 			],
 			"preferredSessionParameters": {
-				"totalTimeLimit": 103
+				"totalTimeLimit": 113
 			}
 		}
 	},

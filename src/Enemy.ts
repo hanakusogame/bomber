@@ -77,7 +77,7 @@ export class Enemy extends g.E {
 					const x = this.px + dx[i];
 					const y = this.py + dy[i];
 					if ([MapType.WAIT_FIRE, MapType.BOMB].indexOf(maps[this.py][this.px].num) !== -1) {
-						const ar = [MapType.ROAD, MapType.WAIT_FIRE];
+						const ar = [MapType.WAIT_FIRE];
 						if (ar.indexOf(maps[y][x].num) !== -1) arr.push({ x: x, y: y });
 					} else {
 						if (this.roots.indexOf(maps[y][x].num) !== -1) arr.push({ x: x, y: y });

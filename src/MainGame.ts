@@ -24,12 +24,21 @@ export class MainGame extends g.E {
 			scene: scene,
 			width: 640,
 			height: 360,
-			cssColor: "white",
+			cssColor: "#303030",
 			opacity: 0.5
 		});
 		this.append(bg);
 
 		//火力とおける爆弾の数
+		const sprPowerBase = new g.Sprite({
+			scene: scene,
+			src: scene.assets["item_base"],
+			x: 515,
+			y: 102,
+			opacity: 0.7
+		});
+		this.append(sprPowerBase);
+
 		const sprPower = new g.Sprite({
 			scene: scene,
 			src: scene.assets["item"],
@@ -37,7 +46,7 @@ export class MainGame extends g.E {
 			height: 60,
 			x: 520,
 			y: 100,
-			srcX:60
+			srcX: 60
 		});
 		this.append(sprPower);
 
@@ -47,9 +56,18 @@ export class MainGame extends g.E {
 			fontSize: 32,
 			text: "2",
 			x: 590,
-			y:115
+			y: 115
 		})
 		this.append(labelPower);
+
+		const sprBombBase = new g.Sprite({
+			scene: scene,
+			src: scene.assets["item_base"],
+			x: 515,
+			y: 182,
+			opacity: 0.7
+		});
+		this.append(sprBombBase);
 
 		const sprBomb = new g.Sprite({
 			scene: scene,
@@ -118,7 +136,7 @@ export class MainGame extends g.E {
 				src: scene.assets["fire"] as g.ImageAsset,
 				width: mapSize,
 				height: mapSize,
-				frames: [0, 1, 2]
+				frames: [0, 1, 2, 3]
 			});
 			spr.hide();
 			fires.push(spr);
@@ -218,7 +236,7 @@ export class MainGame extends g.E {
 			}
 
 			//ブロック発生
-			if (frameCnt % 320 === 0) {
+			if (frameCnt % 240 === 0) {
 				setBlock();
 			}
 
@@ -249,9 +267,50 @@ export class MainGame extends g.E {
 			scene.playSound("se_move")
 		}
 
+		//アイテム発生
+		const setItem = (x: number, y: number) => {
+			//アイテム作成
+			const num = scene.random.get(0, 1);
+			const item = new Item(scene, x, y, num);
+			mapBase.append(item);
+
+			//アイテム自然消滅
+			const timer = scene.setTimeout(() => {
+				item.destroy();
+			}, 5000);
+
+			//アイテム取得
+			item.pointDown.add(() => {
+				scene.playSound("se_item");
+				scene.addScore(30);
+				item.stop();
+				if (item.frameNumber === 0) {
+					if (player.bombMax < 5) {
+						player.bombMax++;
+						labelBomb.text = "" + player.bombMax;
+						labelBomb.invalidate();
+					}
+				} else {
+					if (player.power < 5) {
+						player.power++;
+						labelPower.text = "" + player.power;
+						labelPower.invalidate();
+					}
+				}
+				timer.destroy();
+				item.touchable = false;
+				timeline.create(item).moveBy(0, -20, 200).con().scaleTo(0, 1, 100)
+					.scaleTo(1, 1, 100).wait(600).call(() => {
+						item.destroy();
+					});
+			});
+		}
+
+		let dropCnt = 0;
+
 		//爆発
 		const blast = (bomb: Bomb) => {
-			bomb.hide();
+			bomb.hide()
 
 			scene.playSound("se_bomb");
 
@@ -275,7 +334,8 @@ export class MainGame extends g.E {
 					if (map.num === MapType.WALL) break;
 
 					let num = 1;
-					if (j + 1 === bomb.power || map.num === MapType.BLOCK) num = 2;
+					if (j + 1 === bomb.power) num = 2
+					if (map.num === MapType.BLOCK) num = 3;
 
 					arr.push({ x: x, y: y, time: j + 1, angle: i * 90, num: num });
 
@@ -297,41 +357,11 @@ export class MainGame extends g.E {
 						map.bomb = null;
 					}
 
-					if (map.num === MapType.BLOCK && scene.random.get(0, 6) === 0) {
-						//アイテム作成
-						const num = scene.random.get(0, 1);
-						const item = new Item(scene, p.x, p.y, num);
-						mapBase.append(item);
-
-						//アイテム自然消滅
-						const timer = scene.setTimeout(() => {
-							item.destroy();
-						}, 5000);
-
-						//アイテム取得
-						item.pointDown.add(() => {
-							scene.playSound("se_item");
-							scene.addScore(30);
-							if (item.num === 0) {
-								if (player.bombMax < 5) {
-									player.bombMax++;
-									labelBomb.text = "" + player.bombMax;
-									labelBomb.invalidate();
-								}
-							} else {
-								if (player.power < 5) {
-									player.power++;
-									labelPower.text = "" + player.power;
-									labelPower.invalidate();
-								}
-							}
-							timer.destroy();
-							item.touchable = false;
-							timeline.create(item).scaleTo(0, 1, 100).scaleTo(1, 1, 100).call(() => {
-								item.destroy();	
-							});
-						});
-
+					if (map.num === MapType.BLOCK) {
+						if (scene.random.get(0, 7) === 0 || dropCnt % 11 === 5) {
+							setItem(p.x, p.y);
+						}
+						dropCnt++;
 					}
 
 					map.setNum(MapType.FIRE);
@@ -370,7 +400,8 @@ export class MainGame extends g.E {
 			sprPlayer.y = y * mapSize - 50;
 			sprPlayer.modified();
 
-			if (!(maps[y][x].num === MapType.ROAD || maps[y][x].num === MapType.WAIT_FIRE) || bombs.length >= player.bombMax) return
+			const map = maps[y][x];
+			if (!(map.num === MapType.ROAD || map.num === MapType.WAIT_FIRE) || bombs.length >= player.bombMax) return
 
 			const bomb = stockBombs.pop();
 			bomb.show();
@@ -384,8 +415,8 @@ export class MainGame extends g.E {
 			bomb.power = player.power;
 			bombs.push(bomb);
 
-			maps[y][x].setNum(MapType.BOMB);
-			maps[y][x].bomb = bomb;
+			map.setNum(MapType.BOMB);
+			map.bomb = bomb;
 
 			//投げるアニメーション
 			sprPlayer.frameNumber = 2;
@@ -399,7 +430,23 @@ export class MainGame extends g.E {
 				sprPlayer.modified();
 			}, 300);
 
+			const shadow = new g.Sprite({
+				scene: scene,
+				src: scene.assets["bomb"],
+				x: bomb.x,
+				y: bomb.y,
+				srcX: 100
+			});
+			mapBase.append(shadow);
+
+			mapBase.append(bomb);//重ね順を変える
+
+			timeline.create(shadow).moveTo(map.x - 6, map.y, 500).call(() => {
+				shadow.destroy();
+			});
+
 			timeline.create(bomb).every((a: number, b: number) => {
+				//放物線を描いて移動
 				bomb.x = (x * mapSize) + (450 - (x * mapSize)) * (1 - b);
 				bomb.y = (y * mapSize) + ((Math.pow((b - 0.5) * 2, 2) - 1) * 80);
 				bomb.modified();
@@ -437,6 +484,12 @@ export class MainGame extends g.E {
 			enemy.py = y;
 			enemy.moveTo(x * mapSize, y * mapSize);
 			enemy.modified();
+			enemy.isCollision = false;
+			enemy.scaleX = 0;
+			enemy.scaleY = 2.5;
+			timeline.create(enemy).scaleTo(1, 1, 300).call(() => {
+				enemy.isCollision = true;
+			})
 		}
 
 		//ブロック配置
@@ -451,10 +504,12 @@ export class MainGame extends g.E {
 			maps[y][x].setNum(MapType.BLOCK);
 		}
 
+		//終了
 		this.finish = () => {
 
 		};
 
+		//スタート
 		const start = () => {
 			frameCnt = 0;
 
@@ -476,9 +531,9 @@ export class MainGame extends g.E {
 			for (let i = 0; i < 20; i++) {
 				setBlock();
 			}
-			
+
 			enemys.forEach(e => {
-				if(!e.destroyed())e.destroy();
+				if (!e.destroyed()) e.destroy();
 			});
 			enemys.length = 0;
 
