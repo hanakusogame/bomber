@@ -121,7 +121,7 @@ export class MainGame extends g.E {
 			scene: scene,
 			src: scene.assets["player"] as g.ImageAsset,
 			width: 60,
-			height: 100,
+			height: 120,
 			frames: [0, 1, 2],
 			x: 430,
 			y: 100
@@ -299,7 +299,7 @@ export class MainGame extends g.E {
 				}
 				timer.destroy();
 				item.touchable = false;
-				timeline.create(item).moveBy(0, -20, 200).con().scaleTo(0, 1, 100)
+				timeline.create(item).scaleTo(0, 1, 100)
 					.scaleTo(1, 1, 100).wait(600).call(() => {
 						item.destroy();
 					});
