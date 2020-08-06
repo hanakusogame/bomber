@@ -31,60 +31,6 @@ var MainGame = /** @class */ (function (_super) {
             opacity: 0.5
         });
         _this.append(bg);
-        //火力とおける爆弾の数
-        var sprPowerBase = new g.Sprite({
-            scene: scene,
-            src: scene.assets["item_base"],
-            x: 515,
-            y: 102,
-            opacity: 0.7
-        });
-        _this.append(sprPowerBase);
-        var sprPower = new g.Sprite({
-            scene: scene,
-            src: scene.assets["item"],
-            width: 60,
-            height: 60,
-            x: 520,
-            y: 100,
-            srcX: 60
-        });
-        _this.append(sprPower);
-        var labelPower = new g.Label({
-            scene: scene,
-            font: scene.numFont,
-            fontSize: 32,
-            text: "2",
-            x: 590,
-            y: 115
-        });
-        _this.append(labelPower);
-        var sprBombBase = new g.Sprite({
-            scene: scene,
-            src: scene.assets["item_base"],
-            x: 515,
-            y: 182,
-            opacity: 0.7
-        });
-        _this.append(sprBombBase);
-        var sprBomb = new g.Sprite({
-            scene: scene,
-            src: scene.assets["item"],
-            width: 60,
-            height: 60,
-            x: 520,
-            y: 180
-        });
-        _this.append(sprBomb);
-        var labelBomb = new g.Label({
-            scene: scene,
-            font: scene.numFont,
-            fontSize: 32,
-            text: "2",
-            x: 590,
-            y: 195
-        });
-        _this.append(labelBomb);
         //マップ作成
         var mapX = 11;
         var mapY = 11;
@@ -120,20 +66,6 @@ var MainGame = /** @class */ (function (_super) {
             y: 100
         });
         mapBase.append(sprPlayer);
-        //爆風作成
-        var fires = [];
-        for (var i = 0; i < 100; i++) {
-            var spr = new g.FrameSprite({
-                scene: scene,
-                src: scene.assets["fire"],
-                width: mapSize,
-                height: mapSize,
-                frames: [0, 1, 2, 3]
-            });
-            spr.hide();
-            fires.push(spr);
-            mapBase.append(spr);
-        }
         //爆弾作成
         var stockBombs = []; //ストックされている爆弾
         var bombs = []; //フィールド上に設置されている爆弾
@@ -142,12 +74,14 @@ var MainGame = /** @class */ (function (_super) {
                 scene: scene,
                 width: mapSize,
                 height: mapSize,
-            });
+            }, mapBase);
             spr.hide();
             stockBombs.push(spr);
             mapBase.append(spr);
         }
-        var player = new Player_1.Player(); //プレイヤー
+        //プレイヤー
+        var player = new Player_1.Player(scene);
+        _this.append(player);
         //敵作成
         var enemys = [];
         var dx = [1, 0, -1, 0]; //４方向
@@ -167,7 +101,7 @@ var MainGame = /** @class */ (function (_super) {
                 var y = Math.floor(cy / mapSize);
                 //爆風に当たった時
                 if (maps[y][x].num === 3 && enemy.isCollision) {
-                    enemy.hit();
+                    enemy.hit((player.bombType !== 2) ? 1 : 2);
                     scene.playSound("se_hit");
                     if (enemy.life <= 0) {
                         scene.addScore(enemy.score);
@@ -197,7 +131,9 @@ var MainGame = /** @class */ (function (_super) {
             //爆発
             bombs = bombs.filter(function (bomb) {
                 if (bomb.cnt <= 0) {
-                    blast(bomb);
+                    bomb.blast(maps).forEach(function (p) {
+                        setItem(p.x, p.y, p.num);
+                    });
                     stockBombs.unshift(bomb);
                     if (sprPlayer.frameNumber === 0) {
                         sprPlayer.frameNumber = 1;
@@ -218,31 +154,14 @@ var MainGame = /** @class */ (function (_super) {
             }
             frameCnt++;
         });
-        //爆弾設置
-        var setBomb = function (x, y, bomb) {
-            var arr = [];
-            for (var i = 0; i < 4; i++) {
-                var x_1 = bomb.px;
-                var y_1 = bomb.py;
-                for (var j = 0; j < bomb.power; j++) {
-                    x_1 += dx[i];
-                    y_1 += dy[i];
-                    var map = maps[y_1][x_1];
-                    if (map.num === 2 /* BOMB */ || map.num === 4 /* BLOCK */ || map.num === 1 /* WALL */) {
-                        break;
-                    }
-                    map.setNum(5 /* WAIT_FIRE */);
-                    arr.push({ x: x_1, y: y_1, time: j + 1, angle: i * 90, num: 0 });
-                }
-            }
-            bomb.arr = arr;
-            scene.playSound("se_move");
-        };
         //アイテム発生
-        var setItem = function (x, y) {
+        var setItem = function (x, y, num) {
             //アイテム作成
-            var num = scene.random.get(0, 1);
-            var item = new Item_1.Item(scene, x, y, num);
+            var type = scene.random.get(0, 1);
+            var arr = [0, 1];
+            if (type === 1)
+                arr = [scene.random.get(2, 5)];
+            var item = new Item_1.Item(scene, x, y, num, arr);
             mapBase.append(item);
             //アイテム自然消滅
             var timer = scene.setTimeout(function () {
@@ -253,98 +172,22 @@ var MainGame = /** @class */ (function (_super) {
                 scene.playSound("se_item");
                 scene.addScore(30);
                 item.stop();
-                if (item.frameNumber === 0) {
-                    if (player.bombMax < 5) {
-                        player.bombMax++;
-                        labelBomb.text = "" + player.bombMax;
-                        labelBomb.invalidate();
+                if (type === 0) {
+                    if (item.frameNumber === 0) {
+                        player.addBomb();
+                    }
+                    else {
+                        player.addPower();
                     }
                 }
                 else {
-                    if (player.power < 5) {
-                        player.power++;
-                        labelPower.text = "" + player.power;
-                        labelPower.invalidate();
-                    }
+                    player.setBombType(item.frames[0] - 2);
                 }
                 timer.destroy();
                 item.touchable = false;
                 timeline.create(item).scaleTo(0, 1, 100)
                     .scaleTo(1, 1, 100).wait(600).call(function () {
                     item.destroy();
-                });
-            });
-        };
-        var dropCnt = 0;
-        //爆発
-        var blast = function (bomb) {
-            bomb.hide();
-            scene.playSound("se_bomb");
-            bomb.arr.forEach(function (p) {
-                var map = maps[p.y][p.x];
-                if (map.num === 2 /* BOMB */)
-                    return;
-                map.setNum(0 /* ROAD */);
-            });
-            var arr = [];
-            arr.push({ x: bomb.px, y: bomb.py, time: 0, angle: 0, num: 0 });
-            for (var i = 0; i < 4; i++) {
-                var x = bomb.px;
-                var y = bomb.py;
-                for (var j = 0; j < bomb.power; j++) {
-                    x += dx[i];
-                    y += dy[i];
-                    var map = maps[y][x];
-                    if (map.num === 1 /* WALL */)
-                        break;
-                    var num = 1;
-                    if (j + 1 === bomb.power)
-                        num = 2;
-                    if (map.num === 4 /* BLOCK */)
-                        num = 3;
-                    arr.push({ x: x, y: y, time: j + 1, angle: i * 90, num: num });
-                    if (map.num === 2 /* BOMB */ || map.num === 4 /* BLOCK */) {
-                        break;
-                    }
-                    else {
-                        map.setNum(5 /* WAIT_FIRE */);
-                    }
-                }
-            }
-            //爆風表示
-            arr.forEach(function (p) {
-                var map = maps[p.y][p.x];
-                scene.setTimeout(function () {
-                    if (map.num === 2 /* BOMB */) {
-                        map.bomb.cnt = 0;
-                        map.bomb = null;
-                    }
-                    if (map.num === 4 /* BLOCK */) {
-                        if (scene.random.get(0, 7) === 0 || dropCnt % 11 === 5) {
-                            setItem(p.x, p.y);
-                        }
-                        dropCnt++;
-                    }
-                    map.setNum(3 /* FIRE */);
-                    var fire = fires.pop();
-                    fire.moveTo(map.x, map.y);
-                    fire.frameNumber = p.num;
-                    fire.angle = p.angle;
-                    fire.modified();
-                    fire.show();
-                    map.fires.unshift(fire);
-                }, p.time * ((10 - bomb.power) * 10));
-            });
-            //爆風を消す
-            timeline.create().wait(1000).call(function () {
-                arr.forEach(function (p) {
-                    var map = maps[p.y][p.x];
-                    var fire = map.fires.pop();
-                    fire.hide();
-                    fires.unshift(fire);
-                    if (map.fires.length === 0) {
-                        map.setNum(0 /* ROAD */);
-                    }
                 });
             });
         };
@@ -357,17 +200,14 @@ var MainGame = /** @class */ (function (_super) {
             sprPlayer.y = y * mapSize - 50;
             sprPlayer.modified();
             var map = maps[y][x];
-            if (!(map.num === 0 /* ROAD */ || map.num === 5 /* WAIT_FIRE */) || bombs.length >= player.bombMax)
+            if (!(map.num === 0 /* ROAD */ || map.num === 5 /* WAIT_FIRE */) || bombs.length >= player.bomb)
                 return;
             var bomb = stockBombs.pop();
             bomb.show();
             bomb.y = y * mapSize;
             bomb.x = 450;
             bomb.modified();
-            bomb.px = x;
-            bomb.py = y;
-            bomb.cnt = player.time / 30;
-            bomb.power = player.power;
+            bomb.init(x, y, player);
             bombs.push(bomb);
             map.setNum(2 /* BOMB */);
             map.bomb = bomb;
@@ -375,7 +215,7 @@ var MainGame = /** @class */ (function (_super) {
             sprPlayer.frameNumber = 2;
             sprPlayer.modified();
             scene.setTimeout(function () {
-                if (bombs.length === player.bombMax) {
+                if (bombs.length === player.bomb) {
                     sprPlayer.frameNumber = 0;
                 }
                 else {
@@ -402,7 +242,8 @@ var MainGame = /** @class */ (function (_super) {
                 bomb.modified();
             }, 500).call(function () {
                 //爆弾設置
-                setBomb(x, y, bomb);
+                bomb.setArea(maps);
+                scene.playSound("se_move");
             });
         });
         //敵配置
@@ -485,12 +326,7 @@ var MainGame = /** @class */ (function (_super) {
             for (var i = 0; i < 5; i++) {
                 setEnemy();
             }
-            player.bombMax = 2;
-            labelBomb.text = "" + player.bombMax;
-            labelBomb.invalidate();
-            player.power = 2;
-            labelPower.text = "" + player.power;
-            labelPower.invalidate();
+            player.init();
         };
         //リセット
         _this.reset = function () {

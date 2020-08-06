@@ -29,66 +29,6 @@ export class MainGame extends g.E {
 		});
 		this.append(bg);
 
-		//火力とおける爆弾の数
-		const sprPowerBase = new g.Sprite({
-			scene: scene,
-			src: scene.assets["item_base"],
-			x: 515,
-			y: 102,
-			opacity: 0.7
-		});
-		this.append(sprPowerBase);
-
-		const sprPower = new g.Sprite({
-			scene: scene,
-			src: scene.assets["item"],
-			width: 60,
-			height: 60,
-			x: 520,
-			y: 100,
-			srcX: 60
-		});
-		this.append(sprPower);
-
-		const labelPower = new g.Label({
-			scene: scene,
-			font: scene.numFont,
-			fontSize: 32,
-			text: "2",
-			x: 590,
-			y: 115
-		})
-		this.append(labelPower);
-
-		const sprBombBase = new g.Sprite({
-			scene: scene,
-			src: scene.assets["item_base"],
-			x: 515,
-			y: 182,
-			opacity: 0.7
-		});
-		this.append(sprBombBase);
-
-		const sprBomb = new g.Sprite({
-			scene: scene,
-			src: scene.assets["item"],
-			width: 60,
-			height: 60,
-			x: 520,
-			y: 180
-		});
-		this.append(sprBomb);
-
-		const labelBomb = new g.Label({
-			scene: scene,
-			font: scene.numFont,
-			fontSize: 32,
-			text: "2",
-			x: 590,
-			y: 195
-		})
-		this.append(labelBomb);
-
 		//マップ作成
 		const mapX = 11;
 		const mapY = 11;
@@ -128,21 +68,6 @@ export class MainGame extends g.E {
 		});
 		mapBase.append(sprPlayer);
 
-		//爆風作成
-		let fires: g.FrameSprite[] = [];
-		for (let i = 0; i < 100; i++) {
-			const spr = new g.FrameSprite({
-				scene: scene,
-				src: scene.assets["fire"] as g.ImageAsset,
-				width: mapSize,
-				height: mapSize,
-				frames: [0, 1, 2, 3]
-			});
-			spr.hide();
-			fires.push(spr);
-			mapBase.append(spr);
-		}
-
 		//爆弾作成
 		const stockBombs: Bomb[] = [];//ストックされている爆弾
 		let bombs: Bomb[] = [];//フィールド上に設置されている爆弾
@@ -151,13 +76,15 @@ export class MainGame extends g.E {
 				scene: scene,
 				width: mapSize,
 				height: mapSize,
-			});
+			}, mapBase);
 			spr.hide();
 			stockBombs.push(spr);
 			mapBase.append(spr);
 		}
 
-		const player = new Player();//プレイヤー
+		//プレイヤー
+		const player = new Player(scene);
+		this.append(player);
 
 		//敵作成
 		let enemys: Enemy[] = [];
@@ -180,7 +107,7 @@ export class MainGame extends g.E {
 
 				//爆風に当たった時
 				if (maps[y][x].num === 3 && enemy.isCollision) {
-					enemy.hit();
+					enemy.hit((player.bombType !== 2) ? 1 : 2);
 
 					scene.playSound("se_hit");
 
@@ -216,7 +143,9 @@ export class MainGame extends g.E {
 			//爆発
 			bombs = bombs.filter(bomb => {
 				if (bomb.cnt <= 0) {
-					blast(bomb);
+					bomb.blast(maps).forEach(p => {
+						setItem(p.x, p.y, p.num);
+					});
 					stockBombs.unshift(bomb);
 
 					if (sprPlayer.frameNumber === 0) {
@@ -243,35 +172,14 @@ export class MainGame extends g.E {
 			frameCnt++;
 		});
 
-		//爆弾設置
-		const setBomb = (x: number, y: number, bomb: Bomb) => {
-
-			const arr: Fire[] = [];
-			for (let i = 0; i < 4; i++) {
-				let x = bomb.px;
-				let y = bomb.py;
-				for (let j = 0; j < bomb.power; j++) {
-					x += dx[i];
-					y += dy[i];
-
-					const map = maps[y][x];
-					if (map.num === MapType.BOMB || map.num === MapType.BLOCK || map.num === MapType.WALL) {
-						break;
-					}
-					map.setNum(MapType.WAIT_FIRE);
-					arr.push({ x: x, y: y, time: j + 1, angle: i * 90, num: 0 });
-				}
-			}
-			bomb.arr = arr;
-
-			scene.playSound("se_move")
-		}
-
 		//アイテム発生
-		const setItem = (x: number, y: number) => {
+		const setItem = (x: number, y: number, num:number) => {
 			//アイテム作成
-			const num = scene.random.get(0, 1);
-			const item = new Item(scene, x, y, num);
+			const type = scene.random.get(0, 1);
+			let arr = [0, 1];
+			if (type === 1) arr = [scene.random.get(2, 5)];
+
+			const item = new Item(scene, x, y, num, arr);
 			mapBase.append(item);
 
 			//アイテム自然消滅
@@ -284,19 +192,17 @@ export class MainGame extends g.E {
 				scene.playSound("se_item");
 				scene.addScore(30);
 				item.stop();
-				if (item.frameNumber === 0) {
-					if (player.bombMax < 5) {
-						player.bombMax++;
-						labelBomb.text = "" + player.bombMax;
-						labelBomb.invalidate();
+
+				if (type === 0) {
+					if (item.frameNumber === 0) {
+						player.addBomb();
+					} else {
+						player.addPower();
 					}
 				} else {
-					if (player.power < 5) {
-						player.power++;
-						labelPower.text = "" + player.power;
-						labelPower.invalidate();
-					}
+					player.setBombType(item.frames[0]-2);
 				}
+
 				timer.destroy();
 				item.touchable = false;
 				timeline.create(item).scaleTo(0, 1, 100)
@@ -304,91 +210,7 @@ export class MainGame extends g.E {
 						item.destroy();
 					});
 			});
-		}
 
-		let dropCnt = 0;
-
-		//爆発
-		const blast = (bomb: Bomb) => {
-			bomb.hide()
-
-			scene.playSound("se_bomb");
-
-			bomb.arr.forEach(p => {
-				const map = maps[p.y][p.x];
-				if (map.num === MapType.BOMB) return;
-				map.setNum(MapType.ROAD);
-			});
-
-			const arr: Fire[] = [];
-			arr.push({ x: bomb.px, y: bomb.py, time: 0, angle: 0, num: 0 });
-
-			for (let i = 0; i < 4; i++) {
-				let x = bomb.px;
-				let y = bomb.py;
-				for (let j = 0; j < bomb.power; j++) {
-					x += dx[i];
-					y += dy[i];
-
-					const map = maps[y][x];
-					if (map.num === MapType.WALL) break;
-
-					let num = 1;
-					if (j + 1 === bomb.power) num = 2
-					if (map.num === MapType.BLOCK) num = 3;
-
-					arr.push({ x: x, y: y, time: j + 1, angle: i * 90, num: num });
-
-					if (map.num === MapType.BOMB || map.num === MapType.BLOCK) {
-						break;
-					} else {
-						map.setNum(MapType.WAIT_FIRE);
-					}
-				}
-			}
-
-			//爆風表示
-			arr.forEach(p => {
-				const map = maps[p.y][p.x];
-
-				scene.setTimeout(() => {
-					if (map.num === MapType.BOMB) {
-						map.bomb.cnt = 0;
-						map.bomb = null;
-					}
-
-					if (map.num === MapType.BLOCK) {
-						if (scene.random.get(0, 7) === 0 || dropCnt % 11 === 5) {
-							setItem(p.x, p.y);
-						}
-						dropCnt++;
-					}
-
-					map.setNum(MapType.FIRE);
-
-					const fire = fires.pop();
-					fire.moveTo(map.x, map.y);
-					fire.frameNumber = p.num;
-					fire.angle = p.angle;
-					fire.modified();
-					fire.show();
-
-					map.fires.unshift(fire);
-				}, p.time * ((10 - bomb.power) * 10));
-			});
-
-			//爆風を消す
-			timeline.create().wait(1000).call(() => {
-				arr.forEach(p => {
-					const map = maps[p.y][p.x];
-					const fire = map.fires.pop();
-					fire.hide();
-					fires.unshift(fire);
-					if (map.fires.length === 0) {
-						map.setNum(MapType.ROAD);
-					}
-				});
-			});
 		}
 
 		mapBase.pointDown.add(e => {
@@ -401,7 +223,7 @@ export class MainGame extends g.E {
 			sprPlayer.modified();
 
 			const map = maps[y][x];
-			if (!(map.num === MapType.ROAD || map.num === MapType.WAIT_FIRE) || bombs.length >= player.bombMax) return
+			if (!(map.num === MapType.ROAD || map.num === MapType.WAIT_FIRE) || bombs.length >= player.bomb) return
 
 			const bomb = stockBombs.pop();
 			bomb.show();
@@ -409,10 +231,7 @@ export class MainGame extends g.E {
 			bomb.x = 450;
 			bomb.modified();
 
-			bomb.px = x;
-			bomb.py = y;
-			bomb.cnt = player.time / 30;
-			bomb.power = player.power;
+			bomb.init(x, y, player);
 			bombs.push(bomb);
 
 			map.setNum(MapType.BOMB);
@@ -422,7 +241,7 @@ export class MainGame extends g.E {
 			sprPlayer.frameNumber = 2;
 			sprPlayer.modified();
 			scene.setTimeout(() => {
-				if (bombs.length === player.bombMax) {
+				if (bombs.length === player.bomb) {
 					sprPlayer.frameNumber = 0;
 				} else {
 					sprPlayer.frameNumber = 1;
@@ -452,8 +271,10 @@ export class MainGame extends g.E {
 				bomb.modified();
 			}, 500).call(() => {
 				//爆弾設置
-				setBomb(x, y, bomb);
+				bomb.setArea(maps);
+				scene.playSound("se_move")
 			});
+
 		});
 
 		//敵配置
@@ -542,14 +363,7 @@ export class MainGame extends g.E {
 				setEnemy();
 			}
 
-			player.bombMax = 2;
-			labelBomb.text = "" + player.bombMax;
-			labelBomb.invalidate();
-
-			player.power = 2;
-			labelPower.text = "" + player.power;
-			labelPower.invalidate();
-
+			player.init();
 		};
 
 		//リセット

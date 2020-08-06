@@ -9,7 +9,7 @@ export class Enemy extends g.E {
 	public sprite: g.FrameSprite;
 	public timeline: any;
 	public move = (maps: Map[][]) => { };
-	public hit = () => { };
+	public hit = (power:number) => { };
 	public roots: MapType[] = [];
 	public life: number = 1;
 	public isCollision = true;//当たり判定の有無
@@ -107,11 +107,11 @@ export class Enemy extends g.E {
 		}
 
 		//爆風に当たった時
-		this.hit = () => {
+		this.hit = (power:number) => {
 			this.sprite.frames = [4 * (num % 3) + 2];
 			this.sprite.frameNumber = 0;
 			this.sprite.modified();
-			this.life--;
+			this.life-=power;
 			this.isCollision = false;
 			
 			if (this.life > 0) {

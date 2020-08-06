@@ -23,7 +23,7 @@ var Enemy = /** @class */ (function (_super) {
         _this.py = 0;
         _this.isMove = false; //１マス移動中
         _this.move = function (maps) { };
-        _this.hit = function () { };
+        _this.hit = function (power) { };
         _this.roots = [];
         _this.life = 1;
         _this.isCollision = true; //当たり判定の有無
@@ -110,11 +110,11 @@ var Enemy = /** @class */ (function (_super) {
             }
         };
         //爆風に当たった時
-        _this.hit = function () {
+        _this.hit = function (power) {
             _this.sprite.frames = [4 * (num % 3) + 2];
             _this.sprite.frameNumber = 0;
             _this.sprite.modified();
-            _this.life--;
+            _this.life -= power;
             _this.isCollision = false;
             if (_this.life > 0) {
                 scene.setTimeout(function () {

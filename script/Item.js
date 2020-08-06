@@ -13,13 +13,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 //アイテムクラス
 var Item = /** @class */ (function (_super) {
     __extends(Item, _super);
-    function Item(scene, px, py, num) {
+    function Item(scene, px, py, num, frames) {
         var _this = _super.call(this, {
             scene: scene,
             src: scene.assets["item"],
             width: 60,
             height: 60,
-            frames: [0, 1],
+            frames: frames,
             x: px * 38 - 11,
             y: py * 38 - 11,
             frameNumber: num,

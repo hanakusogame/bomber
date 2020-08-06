@@ -216,7 +216,7 @@
 		"bomb": {
 			"type": "image",
 			"width": 150,
-			"height": 50,
+			"height": 250,
 			"path": "image/bomb.png"
 		},
 		"Bomb": {
@@ -253,7 +253,7 @@
 		},
 		"item": {
 			"type": "image",
-			"width": 120,
+			"width": 420,
 			"height": 60,
 			"path": "image/item.png"
 		},
