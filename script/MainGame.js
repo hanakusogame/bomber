@@ -86,7 +86,7 @@ var MainGame = /** @class */ (function (_super) {
             var spr = new Bomb_1.Bomb({
                 scene: scene,
                 width: mapSize,
-                height: mapSize,
+                height: mapSize
             }, mapBase);
             spr.hide();
             stockBombs.push(spr);
@@ -102,7 +102,6 @@ var MainGame = /** @class */ (function (_super) {
         var frameCnt = 0;
         //ゲームループ
         mapBase.update.add(function () {
-            //if (!scene.isStart) return;
             //敵の処理
             enemys = enemys.filter(function (enemy) {
                 if (enemy.destroyed())
@@ -233,8 +232,7 @@ var MainGame = /** @class */ (function (_super) {
             bomb.modified();
             bomb.init(x, y, player);
             bombs.push(bomb);
-            map.setNum(2 /* BOMB */);
-            map.bomb = bomb;
+            map.setNum(6 /* WAIT_BOMB */);
             //投げるアニメーション
             sprPlayer.frameNumber = 2;
             sprPlayer.modified();
@@ -268,6 +266,11 @@ var MainGame = /** @class */ (function (_super) {
             }, 500).call(function () {
                 //爆弾設置
                 bomb.setArea(maps);
+                if (map.num === 3 /* FIRE */) {
+                    bomb.cnt = 0;
+                }
+                map.setNum(2 /* BOMB */);
+                map.bomb = bomb;
                 scene.playSound("se_move");
             });
         });

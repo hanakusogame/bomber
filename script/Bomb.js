@@ -85,7 +85,7 @@ var Bomb = /** @class */ (function (_super) {
                     x += dx[i];
                     y += dy[i];
                     var map = maps[y][x];
-                    if (map.num === 2 /* BOMB */ || map.num === 4 /* BLOCK */ || map.num === 1 /* WALL */) {
+                    if (map.num === 2 /* BOMB */ || map.num === 6 /* WAIT_BOMB */ || map.num === 4 /* BLOCK */ || map.num === 1 /* WALL */) {
                         break;
                     }
                     map.setNum(5 /* WAIT_FIRE */);
@@ -98,12 +98,7 @@ var Bomb = /** @class */ (function (_super) {
         _this.blast = function (maps) {
             _this.hide();
             scene.playSound("se_bomb");
-            _this.arr.forEach(function (p) {
-                var map = maps[p.y][p.x];
-                if (map.num === 2 /* BOMB */)
-                    return;
-                map.setNum(0 /* ROAD */);
-            });
+            //範囲を取得
             var arr = [];
             arr.push({ x: _this.px, y: _this.py, time: 0, angle: 0, num: 0 });
             for (var i = 0; i < 4; i++) {
@@ -123,9 +118,6 @@ var Bomb = /** @class */ (function (_super) {
                     arr.push({ x: x, y: y, time: j + 1, angle: i * 90, num: num });
                     if (map.num === 2 /* BOMB */ || map.num === 4 /* BLOCK */) {
                         break;
-                    }
-                    else {
-                        map.setNum(5 /* WAIT_FIRE */);
                     }
                 }
             }
@@ -149,6 +141,7 @@ var Bomb = /** @class */ (function (_super) {
                         map.bomb = null;
                     }
                     map.setNum(3 /* FIRE */);
+                    map.fireCnt++;
                     var fire = fires[fireCnt % fires.length];
                     fire.moveTo(map.x, map.y);
                     fire.frameNumber = p.num;
@@ -162,7 +155,10 @@ var Bomb = /** @class */ (function (_super) {
             scene.setTimeout(function () {
                 arr.forEach(function (p) {
                     var map = maps[p.y][p.x];
-                    map.setNum(0 /* ROAD */);
+                    map.fireCnt--;
+                    if (map.fireCnt <= 0 && map.num !== 2 /* BOMB */) {
+                        map.setNum(0 /* ROAD */);
+                    }
                 });
                 fires.forEach(function (e) {
                     e.hide();

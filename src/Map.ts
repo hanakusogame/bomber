@@ -7,6 +7,7 @@ export const enum MapType { ROAD, WALL, BOMB, FIRE, BLOCK, WAIT_FIRE, WAIT_BOMB 
 export class Map extends g.FrameSprite {
 	public colors: string[] = ["green", "#404040", "blue", "green", "orange", "#00A000"];
 	public bomb: Bomb = null;
+	public fireCnt = 0;
 
 	constructor(scene: g.Scene, x: number, y: number, public num: MapType) {
 		super({

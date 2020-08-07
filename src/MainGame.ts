@@ -89,7 +89,7 @@ export class MainGame extends g.E {
 			const spr = new Bomb({
 				scene: scene,
 				width: mapSize,
-				height: mapSize,
+				height: mapSize
 			}, mapBase);
 			spr.hide();
 			stockBombs.push(spr);
@@ -109,8 +109,6 @@ export class MainGame extends g.E {
 		
 		//ゲームループ
 		mapBase.update.add(() => {
-			//if (!scene.isStart) return;
-
 			//敵の処理
 			enemys = enemys.filter(enemy => {
 				if (enemy.destroyed()) return false;
@@ -263,9 +261,8 @@ export class MainGame extends g.E {
 			bomb.init(x, y, player);
 			bombs.push(bomb);
 
-			map.setNum(MapType.BOMB);
-			map.bomb = bomb;
-
+			map.setNum(MapType.WAIT_BOMB);
+			
 			//投げるアニメーション
 			sprPlayer.frameNumber = 2;
 			sprPlayer.modified();
@@ -302,6 +299,14 @@ export class MainGame extends g.E {
 			}, 500).call(() => {
 				//爆弾設置
 				bomb.setArea(maps);
+
+				if (map.num === MapType.FIRE) {
+					bomb.cnt = 0;
+				}
+
+				map.setNum(MapType.BOMB);
+				map.bomb = bomb;
+
 				scene.playSound("se_move")
 			});
 

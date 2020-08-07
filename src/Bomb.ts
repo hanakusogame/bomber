@@ -93,7 +93,7 @@ export class Bomb extends g.E {
 					y += dy[i];
 
 					const map = maps[y][x];
-					if (map.num === MapType.BOMB || map.num === MapType.BLOCK || map.num === MapType.WALL) {
+					if (map.num === MapType.BOMB || map.num === MapType.WAIT_BOMB || map.num === MapType.BLOCK || map.num === MapType.WALL) {
 						break;
 					}
 					map.setNum(MapType.WAIT_FIRE);
@@ -109,12 +109,7 @@ export class Bomb extends g.E {
 
 			scene.playSound("se_bomb");
 
-			this.arr.forEach(p => {
-				const map = maps[p.y][p.x];
-				if (map.num === MapType.BOMB) return;
-				map.setNum(MapType.ROAD);
-			});
-
+			//範囲を取得
 			const arr: Fire[] = [];
 			arr.push({ x: this.px, y: this.py, time: 0, angle: 0, num: 0 });
 
@@ -136,8 +131,6 @@ export class Bomb extends g.E {
 
 					if (map.num === MapType.BOMB || map.num === MapType.BLOCK) {
 						break;
-					} else {
-						map.setNum(MapType.WAIT_FIRE);
 					}
 				}
 			}
@@ -164,6 +157,7 @@ export class Bomb extends g.E {
 					}
 
 					map.setNum(MapType.FIRE);
+					map.fireCnt++;
 
 					const fire = fires[fireCnt % fires.length];
 					fire.moveTo(map.x, map.y);
@@ -181,7 +175,10 @@ export class Bomb extends g.E {
 			scene.setTimeout(() => {
 				arr.forEach(p => {
 					const map = maps[p.y][p.x];
-					map.setNum(MapType.ROAD);
+					map.fireCnt--;
+					if (map.fireCnt <= 0 && map.num !== MapType.BOMB) {
+						map.setNum(MapType.ROAD);
+					}
 				});
 
 				fires.forEach(e => {

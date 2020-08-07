@@ -28,6 +28,7 @@ var Map = /** @class */ (function (_super) {
         _this.num = num;
         _this.colors = ["green", "#404040", "blue", "green", "orange", "#00A000"];
         _this.bomb = null;
+        _this.fireCnt = 0;
         _this.setNum = function (num) {
             _this.num = num;
             _this.frameNumber = num;
