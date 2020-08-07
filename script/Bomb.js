@@ -19,18 +19,18 @@ var Bomb = /** @class */ (function (_super) {
         _this.py = 0;
         _this.power = 0; //火力
         _this.cnt = 0;
-        _this.arr = [];
+        _this.arr = []; //爆風
         _this.type = 0; //種類
         var scene = pram.scene;
         var spr = new g.FrameSprite({
             scene: pram.scene,
             src: pram.scene.assets["bomb"],
-            width: 50,
-            height: 50,
+            width: 60,
+            height: 60,
             frames: [0, 1],
             interval: 500,
-            x: -6,
-            y: -12
+            x: -11,
+            y: -22
         });
         spr.start();
         _this.append(spr);
@@ -65,7 +65,7 @@ var Bomb = /** @class */ (function (_super) {
             else {
                 _this.cnt = 1000; //適当
             }
-            spr.frames = [_this.type * 3, _this.type * 3 + 1];
+            spr.frames = [_this.type * 2, _this.type * 2 + 1];
             spr.frameNumber = 0;
             spr.modified();
             _this.touchable = (_this.type === 1);

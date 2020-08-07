@@ -21,7 +21,7 @@ var MainScene = /** @class */ (function (_super) {
         param.assetIds = [
             "img_numbers_n", "img_numbers_n_red", "title", "start", "finish", "score", "time",
             "panel", "map", "waku", "cursor", "combo", "keep", "fire", "enemy", "enemy2", "bomb", "player", "effect", "item",
-            "item_base",
+            "item_base", "type_base", "shadow",
             "config", "volume", "test", "glyph72", "number_k", "number_b", "number_y", "number_p",
             "se_start", "se_timeup", "bgm", "se_move", "se_miss", "se_hit", "se_item", "se_bomb"
         ];
@@ -29,7 +29,7 @@ var MainScene = /** @class */ (function (_super) {
         var tl = require("@akashic-extension/akashic-timeline");
         var timeline = new tl.Timeline(_this);
         var timeline2 = new tl.Timeline(_this);
-        var isDebug = false;
+        var isDebug = true;
         _this.loaded.add(function () {
             g.game.vars.gameState = { score: 0 };
             // 何も送られてこない時は、標準の乱数生成器を使う
@@ -132,12 +132,12 @@ var MainScene = /** @class */ (function (_super) {
                 defaultGlyphHeight: 80
             });
             //スコア
-            uiBase.append(new g.Sprite({ scene: _this, src: _this.assets["score"], x: 450, y: 5, height: 32 }));
+            uiBase.append(new g.Sprite({ scene: _this, src: _this.assets["score"], x: 450, y: 0, height: 32 }));
             var score = 0;
             var labelScore = new g.Label({
                 scene: _this,
                 x: 430,
-                y: 40,
+                y: 35,
                 width: 32 * 6,
                 fontSize: 32,
                 font: numFont,
@@ -148,7 +148,7 @@ var MainScene = /** @class */ (function (_super) {
             var labelScorePlus = new g.Label({
                 scene: _this,
                 x: 312,
-                y: 80,
+                y: 60,
                 width: 32 * 10,
                 fontSize: 32,
                 font: numFontRed,

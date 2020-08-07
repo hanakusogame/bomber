@@ -66,6 +66,19 @@ var MainGame = /** @class */ (function (_super) {
             y: 100
         });
         mapBase.append(sprPlayer);
+        //持ってる爆弾表示用
+        var sprB = new g.FrameSprite({
+            scene: scene,
+            src: scene.assets["bomb"],
+            width: 60,
+            height: 60,
+            frames: [0, 1],
+            x: 0,
+            y: -10,
+            interval: 300
+        });
+        sprB.start();
+        sprPlayer.append(sprB);
         //爆弾作成
         var stockBombs = []; //ストックされている爆弾
         var bombs = []; //フィールド上に設置されている爆弾
@@ -138,6 +151,7 @@ var MainGame = /** @class */ (function (_super) {
                     if (sprPlayer.frameNumber === 0) {
                         sprPlayer.frameNumber = 1;
                         sprPlayer.modified();
+                        sprB.show();
                     }
                     return false;
                 }
@@ -181,7 +195,11 @@ var MainGame = /** @class */ (function (_super) {
                     }
                 }
                 else {
-                    player.setBombType(item.frames[0] - 2);
+                    var num_1 = item.frames[0] - 2;
+                    player.setBombType(num_1);
+                    sprB.frames = [num_1 * 2, num_1 * 2 + 1];
+                    sprB.frameNumber = 0;
+                    sprB.modified();
                 }
                 timer.destroy();
                 item.touchable = false;
@@ -214,21 +232,22 @@ var MainGame = /** @class */ (function (_super) {
             //投げるアニメーション
             sprPlayer.frameNumber = 2;
             sprPlayer.modified();
+            sprB.hide();
             scene.setTimeout(function () {
                 if (bombs.length === player.bomb) {
                     sprPlayer.frameNumber = 0;
                 }
                 else {
+                    sprB.show();
                     sprPlayer.frameNumber = 1;
                 }
                 sprPlayer.modified();
             }, 300);
             var shadow = new g.Sprite({
                 scene: scene,
-                src: scene.assets["bomb"],
+                src: scene.assets["shadow"],
                 x: bomb.x,
-                y: bomb.y,
-                srcX: 100
+                y: bomb.y
             });
             mapBase.append(shadow);
             mapBase.append(bomb); //重ね順を変える
@@ -285,15 +304,14 @@ var MainGame = /** @class */ (function (_super) {
         };
         //ブロック配置
         var setBlock = function () {
-            var x = 0;
-            var y = 0;
-            while (true) {
-                x = scene.random.get(1, mapX - 1);
-                y = scene.random.get(1, mapY - 1);
-                if (maps[y][x].num === 0 /* ROAD */)
+            for (var i = 0; i < 50; i++) {
+                var x = scene.random.get(1, mapX - 1);
+                var y = scene.random.get(1, mapY - 1);
+                if (maps[y][x].num === 0 /* ROAD */) {
+                    maps[y][x].setNum(4 /* BLOCK */);
                     break;
+                }
             }
-            maps[y][x].setNum(4 /* BLOCK */);
         };
         //終了
         _this.finish = function () {
@@ -327,6 +345,9 @@ var MainGame = /** @class */ (function (_super) {
                 setEnemy();
             }
             player.init();
+            sprB.frames = [0, 1];
+            sprB.frameNumber = 0;
+            sprB.modified();
         };
         //リセット
         _this.reset = function () {

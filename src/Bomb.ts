@@ -11,7 +11,7 @@ export class Bomb extends g.E {
 	public py: number = 0;
 	public power: number = 0;//火力
 	public cnt: number = 0;
-	public arr: Fire[] = [];
+	public arr: Fire[] = [];//爆風
 	public type: number = 0;//種類
 	public init: (px: number, py: number, player: Player) => void;//種類の変更
 	public setArea: (maps: Map[][]) => void;
@@ -25,12 +25,12 @@ export class Bomb extends g.E {
 		const spr = new g.FrameSprite({
 			scene: pram.scene,
 			src: pram.scene.assets["bomb"] as g.ImageAsset,
-			width: 50,
-			height: 50,
+			width: 60,
+			height: 60,
 			frames: [0, 1],
 			interval: 500,
-			x: -6,
-			y: -12
+			x: -11,
+			y: -22
 		});
 		spr.start();
 		this.append(spr);
@@ -68,7 +68,7 @@ export class Bomb extends g.E {
 				this.cnt = 1000;//適当
 			}
 
-			spr.frames = [this.type * 3, this.type * 3 + 1];
+			spr.frames = [this.type * 2, this.type * 2 + 1];
 			spr.frameNumber = 0;
 			spr.modified();
 
@@ -174,7 +174,7 @@ export class Bomb extends g.E {
 					fireCnt++;
 
 				}, p.time * ((10 - this.power) * 10));
-				
+
 			});
 
 			//爆風を消す

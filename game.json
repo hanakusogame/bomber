@@ -215,8 +215,8 @@
 		},
 		"bomb": {
 			"type": "image",
-			"width": 150,
-			"height": 250,
+			"width": 120,
+			"height": 300,
 			"path": "image/bomb.png"
 		},
 		"Bomb": {
@@ -285,6 +285,18 @@
 			"width": 120,
 			"height": 60,
 			"path": "image/item_base.png"
+		},
+		"type_base": {
+			"type": "image",
+			"width": 120,
+			"height": 120,
+			"path": "image/type_base.png"
+		},
+		"shadow": {
+			"type": "image",
+			"width": 50,
+			"height": 50,
+			"path": "image/shadow.png"
 		}
 	},
 	"environment": {

@@ -68,6 +68,20 @@ export class MainGame extends g.E {
 		});
 		mapBase.append(sprPlayer);
 
+		//持ってる爆弾表示用
+		const sprB = new g.FrameSprite({
+			scene: scene,
+			src: scene.assets["bomb"] as g.ImageAsset,
+			width: 60,
+			height: 60,
+			frames: [0, 1],
+			x: 0,
+			y: -10,
+			interval:300
+		});
+		sprB.start();
+		sprPlayer.append(sprB);
+
 		//爆弾作成
 		const stockBombs: Bomb[] = [];//ストックされている爆弾
 		let bombs: Bomb[] = [];//フィールド上に設置されている爆弾
@@ -92,6 +106,7 @@ export class MainGame extends g.E {
 		const dx = [1, 0, -1, 0];//４方向
 		const dy = [0, 1, 0, -1];
 		let frameCnt = 0;
+		
 		//ゲームループ
 		mapBase.update.add(() => {
 			if (!scene.isStart) return;
@@ -151,6 +166,7 @@ export class MainGame extends g.E {
 					if (sprPlayer.frameNumber === 0) {
 						sprPlayer.frameNumber = 1;
 						sprPlayer.modified();
+						sprB.show();
 					}
 
 					return false;
@@ -200,7 +216,12 @@ export class MainGame extends g.E {
 						player.addPower();
 					}
 				} else {
-					player.setBombType(item.frames[0]-2);
+					const num = item.frames[0] - 2;
+					player.setBombType(num);
+
+					sprB.frames = [num * 2, num * 2 + 1];
+					sprB.frameNumber = 0;
+					sprB.modified();
 				}
 
 				timer.destroy();
@@ -240,10 +261,12 @@ export class MainGame extends g.E {
 			//投げるアニメーション
 			sprPlayer.frameNumber = 2;
 			sprPlayer.modified();
+			sprB.hide();
 			scene.setTimeout(() => {
 				if (bombs.length === player.bomb) {
 					sprPlayer.frameNumber = 0;
 				} else {
+					sprB.show();
 					sprPlayer.frameNumber = 1;
 				}
 				sprPlayer.modified();
@@ -251,10 +274,9 @@ export class MainGame extends g.E {
 
 			const shadow = new g.Sprite({
 				scene: scene,
-				src: scene.assets["bomb"],
+				src: scene.assets["shadow"],
 				x: bomb.x,
-				y: bomb.y,
-				srcX: 100
+				y: bomb.y
 			});
 			mapBase.append(shadow);
 
@@ -315,14 +337,14 @@ export class MainGame extends g.E {
 
 		//ブロック配置
 		const setBlock = () => {
-			let x = 0;
-			let y = 0;
-			while (true) {
-				x = scene.random.get(1, mapX - 1);
-				y = scene.random.get(1, mapY - 1);
-				if (maps[y][x].num === MapType.ROAD) break;
+			for (let i = 0; i < 50; i++) {
+				const x = scene.random.get(1, mapX - 1);
+				const y = scene.random.get(1, mapY - 1);
+				if (maps[y][x].num === MapType.ROAD) {
+					maps[y][x].setNum(MapType.BLOCK);
+					break;
+				}
 			}
-			maps[y][x].setNum(MapType.BLOCK);
 		}
 
 		//終了
@@ -364,6 +386,10 @@ export class MainGame extends g.E {
 			}
 
 			player.init();
+
+			sprB.frames = [0, 1];
+			sprB.frameNumber = 0;
+			sprB.modified();
 		};
 
 		//リセット

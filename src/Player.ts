@@ -8,9 +8,6 @@ export class Player extends g.E {
 	public bombType: number = 0;
 	public time: number = 3000;
 
-	private labelBomb: g.Label;
-	private labelPower: g.Label;
-
 	//初期化
 	public init: () => void = () => {
 		this.power = 2;
@@ -19,41 +16,13 @@ export class Player extends g.E {
 	};
 
 	//火力アップ
-	public addPower = () => {
-		if (this.power < this.powerMax) {
-			this.power++;
-			this.labelPower.text = "" + this.power;
-			this.labelPower.invalidate();
-		}
-	}
+	public addPower:() => void;
 
 	//爆弾数アップ
-	public addBomb = () => {
-		if (this.bomb < this.bombMax) {
-			this.bomb++;
-			this.labelBomb.text = "" + this.bomb;
-			this.labelBomb.invalidate();
-		}
-	}
+	public addBomb: () => void;
 
 	//爆弾の種類設定
-	public setBombType = (num: number) => {
-		const maxBombs = [5, 4, 3, 5, 8];
-		const maxPowers = [5, 4, 3, 5, 5];
-		this.bombType = num;
-		this.bombMax = maxBombs[num];
-		this.powerMax = maxPowers[num];
-
-		//種類ごとの上限に補正
-		this.power = Math.min(this.power, this.powerMax);
-		this.bomb = Math.min(this.bomb, this.bombMax);
-
-		this.labelPower.text = "" + this.power;
-		this.labelPower.invalidate();
-
-		this.labelBomb.text = "" + this.bomb;
-		this.labelBomb.invalidate();
-	}
+	public setBombType: (num:number) => void;
 
 	//コンストラクタ
 	constructor(scene: MainScene) {
@@ -61,13 +30,57 @@ export class Player extends g.E {
 			scene:scene
 		});
 
+		//爆弾の種類表示用
+		const sprTypeBase = new g.Sprite({
+			scene: scene,
+			src: scene.assets["type_base"],
+			x: 515,
+			y: 65,
+		});
+		this.append(sprTypeBase);
+
+		const sprType = new g.FrameSprite({
+			scene: scene,
+			src: scene.assets["bomb"] as g.ImageAsset,
+			width: 60,
+			height: 60,
+			frames: [0,2,4,6],
+			frameNumber:0
+		});
+		sprTypeBase.append(sprType);
+
+		const font = new g.DynamicFont({
+			game: g.game,
+			fontFamily: g.FontFamily.Monospace,
+			size: 20
+		});
+
+		const labelType = new g.Label({
+			scene: scene,
+			font: font,
+			fontSize: 20,
+			text: "ノーマル爆弾",
+			x: 3,
+			y:50
+		});
+		sprTypeBase.append(labelType);
+
+		const labelInfo = new g.Label({
+			scene: scene,
+			font: font,
+			fontSize: 16,
+			text: "普通の爆弾",
+			x: 3,
+			y: 80
+		});
+		sprTypeBase.append(labelInfo);
+
 		//火力表示用
 		const sprPowerBase = new g.Sprite({
 			scene: scene,
 			src: scene.assets["item_base"],
 			x: 515,
-			y: 102,
-			opacity: 0.7
+			y: 190,
 		});
 		this.append(sprPowerBase);
 
@@ -76,29 +89,38 @@ export class Player extends g.E {
 			src: scene.assets["item"],
 			width: 60,
 			height: 60,
-			x: 520,
-			y: 100,
+			x: 0,
+			y: -2,
 			srcX: 60
 		});
-		this.append(sprPower);
+		sprPowerBase.append(sprPower);
 
-		this.labelPower = new g.Label({
+		const labelPower = new g.Label({
 			scene: scene,
 			font: scene.numFont,
 			fontSize: 32,
 			text: "2",
-			x: 590,
-			y: 115
+			x: 60,
+			y: 10
 		})
-		this.append(this.labelPower);
+		sprPowerBase.append(labelPower);
+
+		const labelPowerMax = new g.Label({
+			scene: scene,
+			font: font,
+			fontSize: 24,
+			text: "/5",
+			x: 85,
+			y: 25
+		});
+		sprPowerBase.append(labelPowerMax);
 
 		//爆弾数表示用
 		const sprBombBase = new g.Sprite({
 			scene: scene,
 			src: scene.assets["item_base"],
 			x: 515,
-			y: 182,
-			opacity: 0.7
+			y: 252
 		});
 		this.append(sprBombBase);
 
@@ -107,19 +129,82 @@ export class Player extends g.E {
 			src: scene.assets["item"],
 			width: 60,
 			height: 60,
-			x: 520,
-			y: 180
+			x: 0,
+			y: -2
 		});
-		this.append(sprBomb);
+		sprBombBase.append(sprBomb);
 
-		this.labelBomb = new g.Label({
+		const labelBomb = new g.Label({
 			scene: scene,
 			font: scene.numFont,
 			fontSize: 32,
 			text: "2",
-			x: 590,
-			y: 195
+			x: 60,
+			y: 10
 		});
-		this.append(this.labelBomb);
+		sprBombBase.append(labelBomb);
+
+		const labelBombMax = new g.Label({
+			scene: scene,
+			font: font,
+			fontSize: 24,
+			text: "/5",
+			x: 85,
+			y: 25
+		});
+		sprBombBase.append(labelBombMax);
+
+		const names = ["ノーマル爆弾", "リモコン爆弾", "トゲ爆弾", "ドクロ爆弾"];
+		const infos = ["普通の爆弾", "クリックで爆発", "一撃必殺", "火力ランダム"];
+		
+		this.setBombType = (num: number) => {
+			const maxBombs = [5, 4, 3, 5, 8];
+			const maxPowers = [5, 4, 3, 5, 5];
+			this.bombType = num;
+			this.bombMax = maxBombs[num];
+			this.powerMax = maxPowers[num];
+
+			sprType.frameNumber = num;
+			sprType.modified();
+
+			labelType.text = names[num];
+			labelType.invalidate();
+
+			labelInfo.text = infos[num];
+			labelInfo.invalidate();
+
+			//種類ごとの上限に補正
+			this.power = Math.min(this.power, this.powerMax);
+			this.bomb = Math.min(this.bomb, this.bombMax);
+
+			labelPower.text = "" + this.power;
+			labelPower.invalidate();
+
+			labelPowerMax.text = "/" + this.powerMax;
+			labelPowerMax.invalidate();
+
+			labelBomb.text = "" + this.bomb;
+			labelBomb.invalidate();
+
+			labelBombMax.text = "/" + this.bombMax;
+			labelBombMax.invalidate();
+		}
+
+		this.addPower = () => {
+			if (this.power < this.powerMax) {
+				this.power++;
+				labelPower.text = "" + this.power;
+				labelPower.invalidate();
+			}
+		}
+
+		this.addBomb = () => {
+			if (this.bomb < this.bombMax) {
+				this.bomb++;
+				labelBomb.text = "" + this.bomb;
+				labelBomb.invalidate();
+			}
+		}
+
 	}
 }

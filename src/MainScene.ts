@@ -22,7 +22,7 @@ export class MainScene extends g.Scene {
 		param.assetIds = [
 			"img_numbers_n", "img_numbers_n_red", "title", "start", "finish", "score", "time",
 			"panel", "map", "waku", "cursor", "combo", "keep", "fire", "enemy", "enemy2", "bomb", "player", "effect", "item",
-			"item_base",
+			"item_base","type_base","shadow",
 			"config", "volume", "test", "glyph72","number_k", "number_b", "number_y", "number_p",
 			"se_start", "se_timeup", "bgm", "se_move", "se_miss","se_hit","se_item","se_bomb"];
 		super(param);
@@ -30,7 +30,7 @@ export class MainScene extends g.Scene {
 		const tl = require("@akashic-extension/akashic-timeline");
 		const timeline = new tl.Timeline(this);
 		const timeline2 = new tl.Timeline(this);
-		const isDebug = false;
+		const isDebug = true;
 
 		this.loaded.add(() => {
 			g.game.vars.gameState = { score: 0 };
@@ -148,12 +148,12 @@ export class MainScene extends g.Scene {
 			});
 
 			//スコア
-			uiBase.append(new g.Sprite({ scene: this, src: this.assets["score"], x: 450, y: 5, height: 32 }));
+			uiBase.append(new g.Sprite({ scene: this, src: this.assets["score"], x: 450, y: 0, height: 32 }));
 			let score = 0;
 			const labelScore = new g.Label({
 				scene: this,
 				x: 430,
-				y: 40,
+				y: 35,
 				width: 32 * 6,
 				fontSize: 32,
 				font: numFont,
@@ -165,7 +165,7 @@ export class MainScene extends g.Scene {
 			const labelScorePlus = new g.Label({
 				scene: this,
 				x: 312,
-				y: 80,
+				y: 60,
 				width: 32 * 10,
 				fontSize: 32,
 				font: numFontRed,
