@@ -102,8 +102,7 @@ var MainGame = /** @class */ (function (_super) {
         var frameCnt = 0;
         //ゲームループ
         mapBase.update.add(function () {
-            if (!scene.isStart)
-                return;
+            //if (!scene.isStart) return;
             //敵の処理
             enemys = enemys.filter(function (enemy) {
                 if (enemy.destroyed())
@@ -173,8 +172,15 @@ var MainGame = /** @class */ (function (_super) {
             //アイテム作成
             var type = scene.random.get(0, 1);
             var arr = [0, 1];
-            if (type === 1)
-                arr = [scene.random.get(2, 5)];
+            if (type === 1) {
+                while (true) {
+                    var num_1 = scene.random.get(0, 3);
+                    if (num_1 !== player.bombType) {
+                        arr = [num_1 + 2];
+                        break;
+                    }
+                }
+            }
             var item = new Item_1.Item(scene, x, y, num, arr);
             mapBase.append(item);
             //アイテム自然消滅
@@ -195,9 +201,9 @@ var MainGame = /** @class */ (function (_super) {
                     }
                 }
                 else {
-                    var num_1 = item.frames[0] - 2;
-                    player.setBombType(num_1);
-                    sprB.frames = [num_1 * 2, num_1 * 2 + 1];
+                    var num_2 = item.frames[0] - 2;
+                    player.setBombType(num_2);
+                    sprB.frames = [num_2 * 2, num_2 * 2 + 1];
                     sprB.frameNumber = 0;
                     sprB.modified();
                 }

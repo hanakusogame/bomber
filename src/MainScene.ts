@@ -30,7 +30,7 @@ export class MainScene extends g.Scene {
 		const tl = require("@akashic-extension/akashic-timeline");
 		const timeline = new tl.Timeline(this);
 		const timeline2 = new tl.Timeline(this);
-		const isDebug = true;
+		const isDebug = false;
 
 		this.loaded.add(() => {
 			g.game.vars.gameState = { score: 0 };

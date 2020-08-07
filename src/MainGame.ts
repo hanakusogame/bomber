@@ -109,7 +109,7 @@ export class MainGame extends g.E {
 		
 		//ゲームループ
 		mapBase.update.add(() => {
-			if (!scene.isStart) return;
+			//if (!scene.isStart) return;
 
 			//敵の処理
 			enemys = enemys.filter(enemy => {
@@ -193,7 +193,15 @@ export class MainGame extends g.E {
 			//アイテム作成
 			const type = scene.random.get(0, 1);
 			let arr = [0, 1];
-			if (type === 1) arr = [scene.random.get(2, 5)];
+			if (type === 1) {
+				while (true) {
+					const num = scene.random.get(0, 3);
+					if (num !== player.bombType) {
+						arr = [num + 2];
+						break;
+					}
+				}
+			} 
 
 			const item = new Item(scene, x, y, num, arr);
 			mapBase.append(item);

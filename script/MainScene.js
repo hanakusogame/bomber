@@ -29,7 +29,7 @@ var MainScene = /** @class */ (function (_super) {
         var tl = require("@akashic-extension/akashic-timeline");
         var timeline = new tl.Timeline(_this);
         var timeline2 = new tl.Timeline(_this);
-        var isDebug = true;
+        var isDebug = false;
         _this.loaded.add(function () {
             g.game.vars.gameState = { score: 0 };
             // 何も送られてこない時は、標準の乱数生成器を使う
