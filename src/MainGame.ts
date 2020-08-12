@@ -85,7 +85,7 @@ export class MainGame extends g.E {
 		//爆弾作成
 		const stockBombs: Bomb[] = [];//ストックされている爆弾
 		let bombs: Bomb[] = [];//フィールド上に設置されている爆弾
-		for (let i = 0; i < 5; i++) {
+		for (let i = 0; i < 8; i++) {
 			const spr = new Bomb({
 				scene: scene,
 				width: mapSize,
@@ -214,6 +214,8 @@ export class MainGame extends g.E {
 				scene.playSound("se_item");
 				scene.addScore(30);
 				item.stop();
+
+				//console.log("x=" + x + "y=" + y + "num=" + num);
 
 				if (type === 0) {
 					if (item.frameNumber === 0) {
@@ -399,6 +401,9 @@ export class MainGame extends g.E {
 			}
 
 			player.init();
+
+			sprPlayer.frameNumber = 1;
+			sprPlayer.modified();
 
 			sprB.frames = [0, 1];
 			sprB.frameNumber = 0;

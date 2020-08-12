@@ -147,12 +147,6 @@
 			"systemId": "sound",
 			"duration": 360
 		},
-		"panel": {
-			"type": "image",
-			"width": 160,
-			"height": 160,
-			"path": "image/panel.png"
-		},
 		"number_y": {
 			"type": "image",
 			"width": 1080,
@@ -162,7 +156,7 @@
 		"map": {
 			"type": "image",
 			"width": 190,
-			"height": 38,
+			"height": 76,
 			"path": "image/map.png"
 		},
 		"waku": {
@@ -188,12 +182,6 @@
 			"width": 936,
 			"height": 84,
 			"path": "image/number_k.png"
-		},
-		"keep": {
-			"type": "image",
-			"width": 80,
-			"height": 40,
-			"path": "image/keep.png"
 		},
 		"se_hit": {
 			"type": "audio",
@@ -253,7 +241,7 @@
 		},
 		"item": {
 			"type": "image",
-			"width": 420,
+			"width": 360,
 			"height": 60,
 			"path": "image/item.png"
 		},

@@ -20,7 +20,7 @@ var MainScene = /** @class */ (function (_super) {
         var _this = this;
         param.assetIds = [
             "img_numbers_n", "img_numbers_n_red", "title", "start", "finish", "score", "time",
-            "panel", "map", "waku", "cursor", "combo", "keep", "fire", "enemy", "enemy2", "bomb", "player", "effect", "item",
+            "map", "cursor", "combo", "fire", "enemy", "enemy2", "bomb", "player", "effect", "item",
             "item_base", "type_base", "shadow",
             "config", "volume", "test", "glyph72", "number_k", "number_b", "number_y", "number_p",
             "se_start", "se_timeup", "bgm", "se_move", "se_miss", "se_hit", "se_item", "se_bomb"

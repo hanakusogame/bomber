@@ -82,7 +82,7 @@ var MainGame = /** @class */ (function (_super) {
         //爆弾作成
         var stockBombs = []; //ストックされている爆弾
         var bombs = []; //フィールド上に設置されている爆弾
-        for (var i = 0; i < 5; i++) {
+        for (var i = 0; i < 8; i++) {
             var spr = new Bomb_1.Bomb({
                 scene: scene,
                 width: mapSize,
@@ -191,6 +191,7 @@ var MainGame = /** @class */ (function (_super) {
                 scene.playSound("se_item");
                 scene.addScore(30);
                 item.stop();
+                //console.log("x=" + x + "y=" + y + "num=" + num);
                 if (type === 0) {
                     if (item.frameNumber === 0) {
                         player.addBomb();
@@ -354,6 +355,8 @@ var MainGame = /** @class */ (function (_super) {
                 setEnemy();
             }
             player.init();
+            sprPlayer.frameNumber = 1;
+            sprPlayer.modified();
             sprB.frames = [0, 1];
             sprB.frameNumber = 0;
             sprB.modified();
